@@ -222,6 +222,7 @@ const closeChat = document.getElementById('close-chat');
 const chatInput = document.getElementById('chat-input');
 const sendBtn = document.getElementById('send-btn');
 const chatMessages = document.getElementById('chat-messages');
+const quickReplies = document.querySelectorAll('.reply-btn');
 
 // Toggle Chat Box
 function toggleChat() {
@@ -235,25 +236,37 @@ chatToggle.addEventListener('click', toggleChat);
 closeChat.addEventListener('click', toggleChat);
 
 // Send Message
-function sendMessage() {
-    const text = chatInput.value.trim();
-    if (text === '') return;
+function sendMessage(text = null) {
+    const messageText = text || chatInput.value.trim();
+    if (messageText === '') return;
 
     // Add User Message
-    addMessage(text, 'user');
-    chatInput.value = '';
+    addMessage(messageText, 'user');
+    if (!text) chatInput.value = '';
 
-    // Simulate AI Response
+    // Show Typing Indicator
+    showTypingIndicator();
+
+    // Simulate AI Response Delay
+    const delay = Math.random() * 1000 + 1000; // 1-2 seconds
     setTimeout(() => {
-        getAIResponse(text);
-    }, 1000);
+        hideTypingIndicator();
+        getAIResponse(messageText);
+    }, delay);
 }
 
-sendBtn.addEventListener('click', sendMessage);
+sendBtn.addEventListener('click', () => sendMessage());
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         sendMessage();
     }
+});
+
+// Handle Quick Replies
+quickReplies.forEach(btn => {
+    btn.addEventListener('click', () => {
+        sendMessage(btn.textContent);
+    });
 });
 
 // Add Message to Chat
@@ -261,26 +274,87 @@ function addMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
     messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-    messageDiv.textContent = text;
 
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+    contentDiv.textContent = text;
+
+    messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
+
+    // Auto scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Generate AI Response (Simple Rule-based)
+// Typing Indicator Functions
+function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.classList.add('message', 'bot-message', 'typing-container');
+    typingDiv.innerHTML = `
+        <div class="typing">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    typingDiv.id = 'typing-indicator';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+// Generate AI Response
 function getAIResponse(userText) {
     const lowerText = userText.toLowerCase();
-    let response = "I'm currently just a simulation, but Raghuraj would love to hear from you via email!";
+    let response = "";
 
-    if (lowerText.includes('hello') || lowerText.includes('hi')) {
-        response = "Hello! Thanks for visiting my portfolio. How can I help you regarding my work?";
-    } else if (lowerText.includes('project') || lowerText.includes('work')) {
-        response = "I have worked on several exciting projects including the Contactless Braking System. Check out the Projects section!";
-    } else if (lowerText.includes('contact') || lowerText.includes('email')) {
-        response = "You can contact me at raghuraj3675@gmail.com or +91 7904027430.";
-    } else if (lowerText.includes('skill') || lowerText.includes('tool')) {
-        response = "I am proficient in SolidWorks, AutoCAD, Hypermesh, and Python for automation.";
+    const responses = {
+        greeting: [
+            "Hello there! I'm Raghuraj's AI assistant. Ready to explore his mechanical engineering journey?",
+            "Hi! 👋 Great to see you here. How can I help you learn more about Raghuraj's work?",
+            "Greetings! Looking for something specific in Raghuraj's portfolio?"
+        ],
+        projects: [
+            "Raghuraj has worked on some fascinating projects! The 'Contactless Braking System' is a highlight. He also designed a 'Smart Energy Lighting System'. Which one would you like to know more about?",
+            "His project portfolio includes innovative designs in SolidWorks and AutoCAD. You should definitely check out the 'Contactless Braking System' in the Projects section!"
+        ],
+        skills: [
+            "He's proficient in SolidWorks (3D Modeling), AutoCAD (2D/3D), Hypermesh (FEA), and Python for automation. A quite versatile toolkit for a Mechanical Engineer, don't you think?",
+            "Technical expertise includes mechanical design, simulation, and some coding with Python. He loves combining engineering with technology!"
+        ],
+        contact: [
+            "You can reach Raghuraj directly at raghuraj3675@gmail.com or call him at +91 7904027430. He's usually quite responsive!",
+            "Feel free to connect with him on LinkedIn or drop an email at raghuraj3675@gmail.com. All contact details are in the Contact section below."
+        ],
+        default: [
+            "That's an interesting question! While I'm a specialized assistant for this portfolio, Raghuraj would be happy to discuss that with you directly via email.",
+            "I'm learning more about Raghuraj every day! For specific inquiries, reaching out via the contact form or email is your best bet.",
+            "I'm not quite sure about that, but I can tell you all about Raghuraj's mechanical engineering skills and projects!"
+        ]
+    };
+
+    if (lowerText.includes('hello') || lowerText.includes('hi') || lowerText.includes('hey')) {
+        response = getRandom(responses.greeting);
+    } else if (lowerText.includes('project') || lowerText.includes('work') || lowerText.includes('braking') || lowerText.includes('lighting')) {
+        response = getRandom(responses.projects);
+    } else if (lowerText.includes('skill') || lowerText.includes('tool') || lowerText.includes('software') || lowerText.includes('python')) {
+        response = getRandom(responses.skills);
+    } else if (lowerText.includes('contact') || lowerText.includes('email') || lowerText.includes('phone') || lowerText.includes('reach')) {
+        response = getRandom(responses.contact);
+    } else {
+        response = getRandom(responses.default);
     }
 
     addMessage(response, 'bot');
 }
+
+function getRandom(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+

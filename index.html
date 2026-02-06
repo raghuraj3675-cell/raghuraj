@@ -175,16 +175,30 @@
         </div>
         <div id="chat-box" class="chat-box">
             <div class="chat-header">
-                <h3>AI Assistant</h3>
+                <div class="header-info">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                        <span class="status-dot"></span>
+                    </div>
+                    <div>
+                        <h3>AI Assistant</h3>
+                        <span class="status-text">Online</span>
+                    </div>
+                </div>
                 <button id="close-chat"><i class="fas fa-times"></i></button>
             </div>
             <div id="chat-messages" class="chat-messages">
                 <div class="message bot-message">
-                    Hello! I'm Raghuraj's AI assistant. How can I help you today?
+                    <div class="message-content">Hello! I'm Raghuraj's AI assistant. How can I help you today?</div>
                 </div>
             </div>
+            <div id="quick-replies" class="quick-replies">
+                <button class="reply-btn">Projects</button>
+                <button class="reply-btn">Skills</button>
+                <button class="reply-btn">Contact</button>
+            </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Type a message...">
+                <input type="text" id="chat-input" placeholder="Ask me something...">
                 <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
